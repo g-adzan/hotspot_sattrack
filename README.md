@@ -10,9 +10,7 @@ from one HTML file.
 
 ## Live demo
 
-`https://USERNAME.github.io/REPO-NAME/`
-
-(Replace with your own GitHub Pages URL after deployment.)
+`[https://USERNAME.github.io/REPO-NAME/](https://g-adzan.github.io/hotspot_sattrack/)`
 
 ## Satellites tracked
 
