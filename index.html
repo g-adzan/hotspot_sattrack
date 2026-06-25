@@ -204,6 +204,18 @@
 
   /* next pass bar */
   .next-pass-wrap { margin-top: 4px; }
+
+  /* swath capture badge */
+  .swath-badge {
+    margin-top: 10px; border-radius: 8px; padding: 9px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .swath-badge .lead { font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+  .swath-badge .meta { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--textdim); text-align: right; line-height: 1.4; }
+  .swath-badge.in  { background: rgba(0,255,157,0.12); border: 1px solid rgba(0,255,157,0.4); }
+  .swath-badge.in  .lead { color: var(--accent2); }
+  .swath-badge.out { background: rgba(255,107,53,0.10); border: 1px solid rgba(255,107,53,0.35); }
+  .swath-badge.out .lead { color: var(--accent3); }
   .next-pass-label {
     font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
     color: var(--textdim); margin-bottom: 6px;
@@ -349,11 +361,14 @@ let OBS_LON  = 110.348833;
 let OBS_ALT  = 0.030; // km
 
 // swathKm = full sensor swath width on the ground (VIIRS ~3060 km, MODIS ~2330 km)
+// swathElevDeg = approx min MAX-ELEV for the observer to fall inside the swath at all
+//   (practical "starts to be captured" threshold; edge-of-swath detection is unreliable
+//   well before the absolute limit, so treat this as "begins to count", not a sharp line)
 const SATELLITES = [
-  { id: 'NOAA20', name: 'NOAA-20',    norad: 43013, color: '#00d4ff', noradStr: 'NORAD 43013', sensor: 'VIIRS', swathKm: 3060 },
-  { id: 'SNPP',   name: 'Suomi NPP',  norad: 37849, color: '#00ff9d', noradStr: 'NORAD 37849', sensor: 'VIIRS', swathKm: 3060 },
-  { id: 'AQUA',   name: 'Aqua',       norad: 27424, color: '#4da6ff', noradStr: 'NORAD 27424', sensor: 'MODIS', swathKm: 2330 },
-  { id: 'TERRA',  name: 'Terra',      norad: 25994, color: '#ff6b35', noradStr: 'NORAD 25994', sensor: 'MODIS', swathKm: 2330 },
+  { id: 'NOAA20', name: 'NOAA-20',    norad: 43013, color: '#00d4ff', noradStr: 'NORAD 43013', sensor: 'VIIRS', swathKm: 3060, swathElevDeg: 20 },
+  { id: 'SNPP',   name: 'Suomi NPP',  norad: 37849, color: '#00ff9d', noradStr: 'NORAD 37849', sensor: 'VIIRS', swathKm: 3060, swathElevDeg: 20 },
+  { id: 'AQUA',   name: 'Aqua',       norad: 27424, color: '#4da6ff', noradStr: 'NORAD 27424', sensor: 'MODIS', swathKm: 2330, swathElevDeg: 24 },
+  { id: 'TERRA',  name: 'Terra',      norad: 25994, color: '#ff6b35', noradStr: 'NORAD 25994', sensor: 'MODIS', swathKm: 2330, swathElevDeg: 24 },
 ];
 
 // TLE fallback (updated ~June 2025, will be overwritten by live fetch)
@@ -1010,6 +1025,10 @@ function updateCards() {
               <span class="lbl">Durasi</span>
               <span class="val">${fmtHMS(durSec)}</span>
             </div>
+          </div>
+          <div class="swath-badge ${pass.maxEl >= sat.swathElevDeg ? 'in' : 'out'}">
+            <span class="lead">${pass.maxEl >= sat.swathElevDeg ? '✓ LOKASI TERFOTO' : '✗ DI LUAR SWATH'}</span>
+            <span class="meta">MAX ELEV ${pass.maxEl.toFixed(1)}°<br>ambang ${sat.sensor} ${sat.swathElevDeg}°</span>
           </div>
           ${closestHtml}
         </div>`;
